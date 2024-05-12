@@ -1,3 +1,3 @@
 # rctools
 Classes and nodes for devices of functional RC-Models.
-Written in micro python, developed on Raspberry Pi RP2040.
+Written in micro python, developed on Raspberry Pi RP2040 and ESp32.
