@@ -1,0 +1,16 @@
+{
+    "ship_name":"Bäätes",
+    "ship_length":30,
+    "systems":{
+        "navigation_signals":{
+            "position_lights":[13,2,3,6],
+            "restricted_maneuverabilitiy":[7,8,9],
+            "towlights":[10,11]
+        },
+        "watertight_compartments":[
+            ["Bow compartment",27,25],
+            ["Middle compartment",27,25],
+            ["Aft compartment",27,25]
+        ]
+    }
+}

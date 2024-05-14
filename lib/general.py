@@ -23,6 +23,7 @@ class NoAvgValues(Exception):
 
 class Alarm(Exception):
     """Raises an Alarm when measured value is below minimum alarm or over maximum alarm value."""
+    pass
 
 class Sensor():
     """A class with general sensor attributes and methods, to be inherited by the specific

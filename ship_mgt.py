@@ -18,7 +18,7 @@ class Ship:
         self.Propulsion=systems.Propulsion()
         self.NavSignals=systems.NavigationSignals(self.ship_length)
         self.NavSignals.setup_position_lights(13,2,3,6)
-        self.NavSignals.setup_restricted_menueverability(7,8,9)
+        self.NavSignals.setup_restricted_manueverability(7,8,9)
         self.NavSignals.setup_towlights(10,11)
         
 if __name__=="__main__":

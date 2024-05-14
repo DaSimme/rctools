@@ -25,7 +25,36 @@ class int_Potentiometer(general.int_Sensor):
         """Raw reading at the input pin."""
         raw_value=self.PotentiometerIn.read_u16() # read input voltage as 0-65535 in range of 0-ARef
         return raw_value
+
+class WaterDetector(general.int_Sensor):
+    """A Water ingress detector that returns integer values as readouts."""
+    def __init__(self, pinnumber:int,name: str,broadcast:bool=False) -> None:
+        super().__init__(name, "-",broadcast=broadcast)
+        self.PinIn=machine.ADC(machine.Pin(pinnumber))
+        self.set_limits(100,0)
+        self.switchpoint:int=25000 # full int=no water, 0=100% submerged sensor
+        self.water_detected:bool=False # Set to high, if water is triggered.
+
+
+    def read_raw(self)->int:
+        """Raw reading at the input pin."""
+        raw_value=self.PinIn.read_u16() # read input voltage as 0-65535 in range of 0-ARef
+        if raw_value<self.switchpoint:
+            self.water_detected=True
+            print(self.name+": Water ingress detected!")
+        else:
+            self.water_detected=False
+        return raw_value
     
+    def check_for_water(self):
+        """Returns True for water dected, False if sensor is dry."""
+        return self.water_detected
+    
+    def set_switchpoint(self,switchpoint:int)->str:
+        """Sets new switchpoint (int), below which the sensor triggers a water ingress event."""
+        self.switchpoint=switchpoint
+        return self.name+": Switchpoint set to "+str(self.switchpoint)
+        
 class TempSensor(general.Sensor):
     """A Class for all kinds of temperature sensors.
     Supported types:
@@ -37,6 +66,7 @@ class TempSensor(general.Sensor):
             self.measure_pin=pin # Pin with actual connection to sensor
             self.ADCin=machine.ADC(machine.Pin(self.measure_pin))
             self.period:int=0
+
     def read_raw(self) -> float:
         """Reads raw value, overwrites parent method."""
         if self.sensor_type == 1: # Analog Sensor based on ADC voltage reading
@@ -170,6 +200,16 @@ class BrightnessSensor:
     pass
 
 if __name__=="__main__":
+    WL1=WaterDetector(27,"Waterlevel Compartment 1")
+    out=WL1.set_switchpoint(30000)
+    print(out)
+    out=WL1.start_reading()
+    print(out)
+    for s in range(1,20):
+        utime.sleep_ms(1000)
+    out=WL1.stop_reading()
+    print(out)
+
     #CoolingWaterSensor=TempSensor
     #Ruderservo=Potentiometer("Rudder",1)
     #out=Ruderservo.start_reading()
@@ -190,37 +230,37 @@ if __name__=="__main__":
     #print(out)
     #utime.sleep(30)
 
-    P1=Potentiometer(26,"Rudder","°",broadcast=True)
-    out=P1.set_limits(-45.0,45.0)
-    print(out)
-    P1.set_read_frequency(100)
-    out=P1.set_broadcast_period(250)
-    print(out)
-    out=P1.start_reading()
-    print(out)
-    out=P1.start_broadcasting()
-    print(out)
-    utime.sleep(30)
-    
-    T1=TempSensor("Motor temperature",1,27)
-    out=T1.set_limits(0,150)
-    print(out)
-    out=T1.start_reading()
-    print(out)
-    out=T1.start_broadcasting()
-    print(out)
-    utime.sleep(20)
-    out=T1.stop_broadcasting()
-    print(out)
-    out=T1.stop_reading()
-    print(out)
-
-    out=P1.stop_broadcasting()
-    print(out)
-    out=P1.stop_reading()
-    print(out)
-    out=P1.stop_debug()
-    print(out)
+    #P1=Potentiometer(26,"Rudder","°",broadcast=True)
+    #out=P1.set_limits(-45.0,45.0)
+    #print(out)
+    #P1.set_read_frequency(100)
+    #out=P1.set_broadcast_period(250)
+    #print(out)
+    #out=P1.start_reading()
+    #print(out)
+    #out=P1.start_broadcasting()
+    #print(out)
+    #utime.sleep(30)
+    #
+    #T1=TempSensor("Motor temperature",1,27)
+    #out=T1.set_limits(0,150)
+    #print(out)
+    #out=T1.start_reading()
+    #print(out)
+    #out=T1.start_broadcasting()
+    #print(out)
+    #utime.sleep(20)
+    #out=T1.stop_broadcasting()
+    #print(out)
+    #out=T1.stop_reading()
+    #print(out)
+#
+    #out=P1.stop_broadcasting()
+    #print(out)
+    #out=P1.stop_reading()
+    #print(out)
+    #out=P1.stop_debug()
+    #print(out)
 
     #out=R1.stop_broadcasting()
     #print(out)

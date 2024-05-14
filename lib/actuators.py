@@ -1,5 +1,6 @@
 """All classes for actuators and outputs.
     """
+
 import machine
 import utime
 import sensors
@@ -19,11 +20,12 @@ def convert_int(x:int, in_min:int, in_max:int, out_min:int, out_max:int):
         return (x - in_min) * (out_max - out_min) // (in_max - in_min) + out_min
 
 class PWMOut():
-    def __init__(self,pin_number:int,frequency:int=10000) -> None:
+    def __init__(self,pin_number:int,name:str,frequency:int=10000) -> None:
         if pin_number==0: #Class initialized without actual output, can be to control remote (I2C etc) PWM.
             pin_number=25 #Set pin to built-in LED (Raspi Pico)
         else:
             self.PWM=machine.PWM(machine.Pin(pin_number))
+        self.name=name
         self.PWM.freq(frequency) #[Hz]
         self.PWM.duty_u16(0) # 0-65535 
         self.min_pwm=0
@@ -47,7 +49,7 @@ class PWMOut():
 
 class Light(PWMOut):
     def __init__(self, pin_number: int, name:str, frequency: int = 100) -> None:
-        super().__init__(pin_number, frequency)
+        super().__init__(pin_number, name, frequency)
         self.on_state:bool=False  # If light is currently on or off.
         self.dim_value=0  #Dimmer Value
         self.name=name
@@ -71,7 +73,10 @@ class Light(PWMOut):
         return self.on_state
 
 class Motor:
-    """A class for all motor types"""
+    """XXXXXXXXXXXXXXXXXXXXXXXX
+    ÜBERARBEITEN, basierend auf PWM!
+    XXXXXXXXXXXXXXXXXXXXXXXXXXX
+    A class for all motor types"""
     def __init__(self,mode:int):
         self.modes=mode #Possible modes: 1=pwm control one direction,2=pwm control two direction, 3 rpm control
         self.has_MotorTemp=False
@@ -134,9 +139,28 @@ class Valve:
     """A valve to control hydraulic systems."""
     pass
 
-class Pump:
+class Pump(PWMOut):
     """A class for a pump"""
-    pass
+    def __init__(self, pin_number: int, name:str, frequency: int = 10000) -> None:
+        super().__init__(pin_number, name, frequency)
+        self.on_pwm:int=65535 # PWM value when switched on (default=maximum)
+        self.on_state:bool=False  #Is pump running?
+
+    def switch_on(self):
+        """Start pump."""
+        self.set_raw_duty_cycle(self.on_pwm)
+        self.on_state=True
+
+    def switch_off(self):
+        """Stops the pump."""
+        self.set_raw_duty_cycle(0)
+        self.on_state=False
+
+    def is_running(self):
+        """Returns true if pump is running."""
+        return self.on_state
+
+
 
 if __name__=="__main__":
     #Test on build-in led
